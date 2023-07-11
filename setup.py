@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='fastapi_auth',
+    name='fastapi_authtools',
     version='0.1',
-    url='https://github.com/the-gigi/pathology',
+    url='https://github.com/michael7nightinglae/fastapi_authtools',
     install_requires=[
         "fastapi", "python-jose"
     ],
