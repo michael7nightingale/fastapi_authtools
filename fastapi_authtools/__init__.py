@@ -1,10 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from functools import wraps
+
+from typing_extensions import Awaitable
 
 from .middleware import AuthenticationMiddleware
 from .token import encode_jwt_token
+from .exceptions import HTTPException403
 
 
-class LoginManager:
+class AuthManager:
     def __init__(
             self,
             app: FastAPI,
@@ -38,3 +42,18 @@ class LoginManager:
             expire_minutes=self.expire_minutes,
             algorithm=self.algorithm
         )
+
+
+def login_required(func):
+    """Decorator with makes view allowed only for authenticated users."""
+    @wraps(func)
+    def inner_view(request: Request, *args, **kwargs):
+        if request.user is None:
+            raise HTTPException403
+        response = func(request, *args, **kwargs)
+        if isinstance(response, Awaitable):
+            response = await response
+        return response
+
+    return inner_view
+
