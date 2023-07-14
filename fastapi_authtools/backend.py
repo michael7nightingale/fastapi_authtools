@@ -11,14 +11,13 @@ from .user import FastAPIUser
 class AuthenticationBackend(authentication.AuthenticationBackend):
     def __init__(
             self,
-            secret_key: str,
-            algorithm: str,
-            expire_minutes: int,
-            excluded_urls=None
+            jwt_config: BaseModel,
+            excluded_urls: list | None,
+            user_model: BaseModel,
+
     ):
-        self.secret_key = secret_key
-        self.algorithm = algorithm
-        self.expire_minutes = expire_minutes
+        self.jwt_config = jwt_config
+        self.user_model = user_model
         self.excluded_urls = [] if excluded_urls is None else excluded_urls
 
     def verify_token(self, headers: dict | Headers):
@@ -30,8 +29,8 @@ class AuthenticationBackend(authentication.AuthenticationBackend):
         token = token.split()[-1]
         user_data = decode_jwt_token(
             token=token,
-            secret_key=self.secret_key,
-            algorithm=self.algorithm
+            secret_key=self.jwt_config.secret_key,
+            algorithm=self.jwt_config.algorithm
         )
         if user_data is None:
             return scopes, None
