@@ -57,7 +57,7 @@ class AuthManager:
 def login_required(func):
     """Decorator with makes view allowed only for authenticated users."""
     @wraps(func)
-    def inner_view(request: Request, *args, **kwargs):
+    async def inner_view(request: Request, *args, **kwargs):
         if request.user is None:
             raise_credentials_error()
         response = func(request, *args, **kwargs)
