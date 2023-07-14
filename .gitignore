@@ -1,3 +1,7 @@
 .idea
+fastapi_authtools.egg-info
+dist
+build
+.pytest_cache
 
-
+app.py
