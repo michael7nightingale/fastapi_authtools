@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request
 from functools import wraps
 
+from pydantic import BaseModel
 from typing_extensions import Awaitable
 
 from .middleware import AuthenticationMiddleware
 from .token import encode_jwt_token
-from .exceptions import HTTPException403
+from .exceptions import raise_credentials_error, raise_data_model_exception
+from .models import UsernamePasswordToken
 
 
 class AuthManager:
@@ -14,8 +16,13 @@ class AuthManager:
             app: FastAPI,
             secret_key: str,
             algorithm: str,
-            expire_minutes: int
+            expire_minutes: int,
+            create_token_model: BaseModel = UsernamePasswordToken,
     ):
+        # data models
+        self.create_token_model = create_token_model
+
+        # configurations
         self.algorithm = algorithm
         self.secret_key = secret_key
         self.expire_minutes = expire_minutes
@@ -28,6 +35,7 @@ class AuthManager:
         return self._app
 
     def _configurate_app(self):
+        """Configurate application function (adds middleware.)"""
         self.app.add_middleware(
             AuthenticationMiddleware,
             secret_key=self.secret_key,
@@ -35,7 +43,9 @@ class AuthManager:
             algorithm=self.algorithm
         )
 
-    def create_token(self, data) -> str:
+    def create_token(self, data: BaseModel) -> str:
+        if not isinstance(data, self.create_token_model):
+            raise_data_model_exception(self.create_token_model, data.__class__)
         return encode_jwt_token(
             user_data=data,
             secret_key=self.secret_key,
@@ -49,7 +59,7 @@ def login_required(func):
     @wraps(func)
     def inner_view(request: Request, *args, **kwargs):
         if request.user is None:
-            raise HTTPException403
+            raise_credentials_error()
         response = func(request, *args, **kwargs)
         if isinstance(response, Awaitable):
             response = await response
