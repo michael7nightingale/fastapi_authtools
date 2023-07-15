@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='fastapi_authtools',
-    version='0.2',
+    version='0.3',
     url='https://github.com/michael7nightinglae/fastapi_authtools',
     install_requires=[
         "fastapi", "python-jose"
