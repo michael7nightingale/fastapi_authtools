@@ -12,7 +12,7 @@ def encode_jwt_token(
         expire_minutes: int
 ) -> str:
     if isinstance(user_data, BaseModel):
-        user_data = user_data.model_dump()
+        user_data = user_data.dict()
     user_data.update(exp=datetime.now() + timedelta(minutes=expire_minutes))
     token = jwt.encode(
         user_data,

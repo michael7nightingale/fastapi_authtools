@@ -35,7 +35,7 @@ class AuthenticationBackend(authentication.AuthenticationBackend):
         if user_data is None:
             return scopes, None
 
-        user = FastAPIUser(**user_data.model_dump()) if isinstance(user_data, BaseModel) else FastAPIUser(**user_data)
+        user = FastAPIUser(**user_data.dict()) if isinstance(user_data, BaseModel) else FastAPIUser(**user_data)
         return scopes, user
 
     async def authenticate(
