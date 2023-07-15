@@ -3,15 +3,15 @@ from starlette.middleware import authentication
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Callable, List
+from typing import Callable, List, Type
 
 from .backend import AuthenticationBackend
 
 
 def AuthenticationMiddleware(
         app: FastAPI,
-        jwt_config: BaseModel,
-        user_model: BaseModel,
+        jwt_config: Type[BaseModel],
+        user_model: Type[BaseModel],
         auth_error_handler: Callable[[Request, authentication.AuthenticationError], JSONResponse] | None,
         excluded_urls: List[str] | None
 ) -> authentication.AuthenticationMiddleware:

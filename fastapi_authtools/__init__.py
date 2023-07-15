@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from starlette.middleware import authentication
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Awaitable, List, Callable
+from typing import Awaitable, List, Callable, Type
 from functools import wraps
 
 from .middleware import AuthenticationMiddleware
@@ -29,7 +29,7 @@ class AuthManager:
             secret_key: str,
             algorithm: str,
             expire_minutes: int,
-            user_model: BaseModel = UserModel,
+            user_model: Type[BaseModel] = UserModel,
             auth_error_handler: Callable[[Request, authentication.AuthenticationError], JSONResponse] | None = None,
             excluded_urls: List[str] | None = None
     ):
@@ -59,7 +59,7 @@ class AuthManager:
             auth_error_handler=self.auth_error_handler
         )
 
-    def create_token(self, data: BaseModel) -> str:
+    def create_token(self, data: Type[BaseModel]) -> str:
         """Create token function to user in token get endpoint."""
         return encode_jwt_token(
             user_data=data,

@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
-import typing
-
+from typing import Type
 from jose import JWTError, jwt
 from pydantic import BaseModel, ValidationError
 
 
 def encode_jwt_token(
-        user_data: dict | BaseModel,
+        user_data: dict | Type[BaseModel],
         secret_key: str,
         algorithm: str,
         expire_minutes: int
@@ -26,15 +25,13 @@ def decode_jwt_token(
         token: str,
         algorithm: str,
         secret_key: str,
-        out_model: typing.Type[BaseModel] | None = None
-) -> dict | BaseModel | None:
+) -> dict | None:
     try:
-        data = jwt.decode(
+        decoded_data = jwt.decode(
             token=token,
             key=secret_key,
             algorithms=[algorithm]
         )
-        return data if out_model is None else out_model(**data)
-
+        return decoded_data
     except (JWTError, ValidationError):
         return None

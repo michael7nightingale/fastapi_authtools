@@ -2,18 +2,19 @@ from starlette import authentication
 from starlette.datastructures import Headers
 from starlette.requests import HTTPConnection
 from pydantic import typing, BaseModel
-import typing
+from typing import Type
 
 from .token import decode_jwt_token
+from .exceptions import raise_credentials_error
 from .user import FastAPIUser
 
 
 class AuthenticationBackend(authentication.AuthenticationBackend):
     def __init__(
             self,
-            jwt_config: BaseModel,
+            jwt_config: Type[BaseModel],
             excluded_urls: list | None,
-            user_model: BaseModel,
+            user_model: Type[BaseModel],
 
     ):
         self.jwt_config = jwt_config
@@ -35,8 +36,12 @@ class AuthenticationBackend(authentication.AuthenticationBackend):
         if user_data is None:
             return scopes, None
 
-        user = FastAPIUser(**user_data.dict()) if isinstance(user_data, BaseModel) else FastAPIUser(**user_data)
-        return scopes, user
+        try:
+            user = self.user_model(**user_data)
+        except:
+            raise_credentials_error()
+        else:
+            return scopes, user
 
     async def authenticate(
         self, conn: HTTPConnection
