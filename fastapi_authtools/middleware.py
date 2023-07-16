@@ -11,6 +11,7 @@ from .backend import AuthenticationBackend
 def AuthenticationMiddleware(
         app: FastAPI,
         jwt_config: Type[BaseModel],
+        use_cookies: bool,
         user_model: Type[BaseModel],
         auth_error_handler: Callable[[Request, authentication.AuthenticationError], JSONResponse] | None,
         excluded_urls: List[str] | None
@@ -22,6 +23,7 @@ def AuthenticationMiddleware(
     return authentication.AuthenticationMiddleware(
         app=app,
         backend=AuthenticationBackend(
+            use_cookies=use_cookies,
             jwt_config=jwt_config,
             excluded_urls=excluded_urls,
             user_model=user_model

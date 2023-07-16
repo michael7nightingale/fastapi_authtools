@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from starlette.middleware import authentication
 from starlette.responses import JSONResponse
 from pydantic import BaseModel
@@ -29,6 +29,7 @@ class AuthManager:
             secret_key: str,
             algorithm: str,
             expire_minutes: int,
+            use_cookies: bool = False,
             user_model: Type[BaseModel] = UserModel,
             auth_error_handler: Callable[[Request, authentication.AuthenticationError], JSONResponse] | None = None,
             excluded_urls: List[str] | None = None
@@ -39,6 +40,7 @@ class AuthManager:
             algorithm=algorithm,
             expire_minutes=expire_minutes
         )
+        self.use_cookies = use_cookies
         self.user_model = user_model
         self.auth_error_handler = auth_error_handler
         self.excluded_urls = excluded_urls
@@ -49,12 +51,24 @@ class AuthManager:
     def app(self) -> FastAPI:
         return self._app
 
+    def login(self, response: Response, user: Type[BaseModel]) -> None:
+        access_token = self.create_token(user)
+        response.set_cookie(
+            key="access-token",
+            value=access_token,
+            max_age=60*24*14
+        )
+
+    def logout(self, response: Response) -> None:
+        response.delete_cookie(key="access-token")
+
     def _configurate_app(self):
         """Configurate application function (adds middleware.)"""
         self.app.add_middleware(
             AuthenticationMiddleware,
             jwt_config=self.jwt_config,
             excluded_urls=self.excluded_urls,
+            use_cookies=self.use_cookies,
             user_model=self.user_model,
             auth_error_handler=self.auth_error_handler
         )
