@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi_authtools"
-version = "0.3"
+version = "0.5"
 authors = [
   { name="Michael Nightingale", email="suslanchikmopl@gmail.com" },
 ]
-description = "A small example package"
+description = "FastAPI authentication package."
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -19,5 +19,5 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/michael7nightinglae/fastapi_authtools"
-"Bug Tracker" = "https://github.com/michael7nightinglae/fastapi_authtools/issues"
+"Homepage" = "https://github.com/michael7nightingale/fastapi_authtools"
+"Bug Tracker" = "https://github.com/michael7nightingale/fastapi_authtools/issues"
