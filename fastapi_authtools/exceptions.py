@@ -1,33 +1,28 @@
 from fastapi import HTTPException
+from enum import Enum
 
 
-def credentials_error_message() -> str:
-    return "Auth credentials are not provided."
-
-
-def permissions_error_message() -> str:
-    return "You don`t have permissions."
+class Responses(str, Enum):
+    credentials_not_provided = "Auth credentials are not provided."
+    permission_required = "You don`t have permissions."
+    invalid_credentials = "Invalid credentials provided."
 
 
 def data_model_exception_message(expected, got) -> str:
     return f"""Invalid data model got: {got}. Expected: {expected}."""
 
 
-def invalid_credentials_message() -> str:
-    return "Invalid credentials provided."
-
-
-def raise_credentials_error() -> str:
+def raise_credentials_not_provided() -> str:
     raise HTTPException(
         status_code=401,
-        detail=credentials_error_message()
+        detail=Responses.credentials_not_provided
     )
 
 
 def raise_permissions_error() -> str:
     raise HTTPException(
         status_code=403,
-        detail=permissions_error_message()
+        detail=Responses.permission_required
     )
 
 
@@ -41,5 +36,5 @@ def raise_data_model_exception(expected, got) -> str:
 def raise_invalid_credentials() -> str:
     raise HTTPException(
         status_code=400,
-        detail=invalid_credentials_message()
+        detail=Responses.invalid_credentials
     )

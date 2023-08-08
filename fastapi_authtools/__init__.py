@@ -7,7 +7,7 @@ from functools import wraps
 
 from .middleware import AuthenticationMiddleware
 from .token import encode_jwt_token
-from .exceptions import raise_credentials_error, raise_data_model_exception
+from .exceptions import raise_credentials_not_provided, raise_data_model_exception
 from .models import UserModel
 
 
@@ -73,7 +73,7 @@ class AuthManager:
             auth_error_handler=self.auth_error_handler
         )
 
-    def create_token(self, data: Type[BaseModel]) -> str:
+    def create_token(self, data: dict | BaseModel) -> str:
         """Create token function to user in token get endpoint."""
         return encode_jwt_token(
             user_data=data,
@@ -88,7 +88,7 @@ def login_required(func):
     @wraps(func)
     async def inner_view(request: Request, *args, **kwargs):
         if request.user is None:
-            raise_credentials_error()
+            raise_credentials_not_provided()
         response = func(request, *args, **kwargs)
         if isinstance(response, Awaitable):
             response = await response

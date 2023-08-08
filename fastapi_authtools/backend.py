@@ -3,7 +3,7 @@ from starlette.requests import HTTPConnection
 from pydantic import typing, BaseModel
 from typing import Type
 
-from .exceptions import invalid_credentials_message
+from .exceptions import Responses
 from .token import decode_jwt_token
 
 
@@ -34,11 +34,10 @@ class AuthenticationBackend(authentication.AuthenticationBackend):
         )
         if user_data is None:
             return scopes, None
-
         try:
             user = self.user_model(**user_data)
         except:
-            raise authentication.AuthenticationError(invalid_credentials_message())
+            raise authentication.AuthenticationError(Responses.invalid_credentials)
         else:
             return scopes, user
 

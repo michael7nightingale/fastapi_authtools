@@ -5,13 +5,17 @@ from pydantic import BaseModel, ValidationError
 
 
 def encode_jwt_token(
-        user_data: dict | Type[BaseModel],
+        user_data: dict | BaseModel,
         secret_key: str,
         algorithm: str,
         expire_minutes: int
 ) -> str:
     if isinstance(user_data, BaseModel):
-        user_data = user_data.dict()
+        user_data = user_data.model_dump()
+    elif isinstance(user_data, dict):
+        pass
+    else:
+        raise TypeError("Data to encode must be either `dict` ot `BaseModel`")
     user_data.update(exp=datetime.now() + timedelta(minutes=expire_minutes))
     token = jwt.encode(
         user_data,
