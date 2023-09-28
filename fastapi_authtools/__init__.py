@@ -31,8 +31,11 @@ class AuthManager:
             expire_minutes: int,
             use_cookies: bool = False,
             user_model: Type[BaseModel] = UserModel,
+            authorization_key: str = "authorization",
             auth_error_handler: Callable[[Request, authentication.AuthenticationError], JSONResponse] | None = None,
-            excluded_urls: List[str] | None = None
+            excluded_urls: List[str] | None = None,
+            user_getter: Callable | None = None,
+            token_getter: Callable | None = None
     ):
         self._app = app
         self.jwt_config = JWTConfig(
@@ -44,7 +47,9 @@ class AuthManager:
         self.user_model = user_model
         self.auth_error_handler = auth_error_handler
         self.excluded_urls = excluded_urls
-
+        self.token_getter = token_getter
+        self.user_getter = user_getter
+        self.authorization_key = authorization_key
         self._configurate_app()
 
     @property
@@ -54,13 +59,13 @@ class AuthManager:
     def login(self, response: Response, user: Type[BaseModel]) -> None:
         access_token = self.create_token(user)
         response.set_cookie(
-            key="access-token",
+            key=self.authorization_key,
             value=access_token,
-            max_age=60*24*14
+            max_age=self.jwt_config.expire_minutes
         )
 
     def logout(self, response: Response) -> None:
-        response.delete_cookie(key="access-token")
+        response.delete_cookie(self.authorization_key)
 
     def _configurate_app(self):
         """Configurate application function (adds middleware.)"""
@@ -70,7 +75,11 @@ class AuthManager:
             excluded_urls=self.excluded_urls,
             use_cookies=self.use_cookies,
             user_model=self.user_model,
-            auth_error_handler=self.auth_error_handler
+            auth_error_handler=self.auth_error_handler,
+            token_getter=self.token_getter,
+            user_getter=self.user_getter,
+            authorization_key=self.authorization_key,
+
         )
 
     def create_token(self, data: dict | BaseModel) -> str:
