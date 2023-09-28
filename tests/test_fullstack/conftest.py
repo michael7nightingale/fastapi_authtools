@@ -34,7 +34,7 @@ async def client(app):
 @pytest.fixture
 async def authorized_client(client: AsyncClient, michael7nightingale: dict):
     resp = await client.post(url_path_for("login_post"), data=michael7nightingale)
-    client.cookies['access-token'] = resp.cookies['access-token']
+    client.cookies['authorization'] = resp.cookies['authorization']
     yield client
 
 

@@ -10,7 +10,7 @@ class TestLogin:
     async def test_login_success(self, client: AsyncClient, michael7nightingale: dict):
         resp = await client.post(url_path_for("login_post"), data=michael7nightingale)
         assert resp.status_code == status.HTTP_303_SEE_OTHER
-        assert "access-token" in resp.cookies
+        assert "authorization" in resp.cookies
 
     async def test_login_fail(self, client: AsyncClient):
         user_data = {
